@@ -1,0 +1,475 @@
+// Missile_project_1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+// Dasha.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
+#include "dig.h"
+#include <conio.h>
+#include <cstdlib>
+#include <iostream>
+#define _USE_MATH_DEFINES
+#include <iomanip>
+#include <math.h>
+#include "Matrix+Vector.h"
+#include "Atmosfera.h"
+#include "Aerodynamics.h"
+#include "Missile.h"
+
+
+using namespace std;
+
+#define	pr1Speed_X Left[0]
+#define	pr1Speed_Y Left[1]
+#define	pr1Speed_Z Left[2]
+#define	pr1Point_X Left[3]
+#define	pr1Point_Y Left[4]
+#define	pr1Point_Z Left[5]
+#define	pr1omegaX   Left[6]
+#define	pr1omegaY   Left[7]
+#define	pr1omegaZ   Left[8]
+#define	pr1ro_rg    Left[9]
+#define	pr1lamda_rg Left[10]
+#define	pr1mu_rg    Left[11]
+#define	pr1nu_rg    Left[12]
+
+
+
+
+#define	Speed_X el[0]
+#define	Speed_Y el[1]
+#define	Speed_Z el[2]
+#define	Point_X el[3]
+#define	Point_Y el[4]
+#define	Point_Z el[5]
+#define	omegaX   el[6]
+#define	omegaY   el[7]
+#define	omegaZ   el[8]
+#define	ro_rg    el[9]
+#define	lamda_rg el[10]
+#define	mu_rg    el[11]
+#define	nu_rg    el[12]
+
+
+
+double* el;
+double* Left;
+
+const double
+R_earth = 6371000,
+omega_earth = 7.2921E-5;
+
+double  Alfa = 0, Betta = 0, Pitch = 0, Yaw = 0, Roll = 0, Mass, q,
+Ix = 0, Iy = 0, Iz = 0, Length = 0, DiametrMiddle = 0, L_har,
+SquareMiddle, TETA, PSI, Step, Speed, lambda, L, latitude, longitude,
+r , h, velocity, velocity_g, TETA_C, TETA_mestn, Pitch_g;
+
+bool print;
+
+Vector Gg, F, P;
+Vector v(0, 0, 0);
+Vector v_a;
+Vector v_g;
+
+double Time;
+
+double ToDegree()
+{
+	return 180 / M_PI;
+}
+
+void SetAngle(double r, double l, double m, double n)
+{
+	FILE* fError;
+
+	if (fabs(2 * r * n + 2 * l * m) <= 1.0)
+		Pitch = asin(2 * r * n + 2 * l * m);
+	else
+	{
+		Pitch = asin((2 * r * n + 2 * l * m) / fabs(2 * r * n + 2 * l * m));
+	}
+
+	Roll = atan2(2 * r * l - 2 * n * m, r * r + m * m - n * n - l * l);
+	Yaw = atan2(2 * r * m - 2 * l * n, r * r + l * l - m * m - n * n);
+};
+
+
+
+
+void RightPart(double Time)
+{
+	FILE* fError;
+	SetAngle(ro_rg, lamda_rg, mu_rg, nu_rg);
+	Missile Missile1;
+	ParamAtmosferaStruct Atm1;
+	Atm1 = ParamAtmos(Point_Y);
+
+	r = sqrt(pow((Point_X), 2) + pow(Point_Y + R_earth, 2));
+	h = r - R_earth;
+	Vector v(Speed_X, Speed_Y, Speed_Z);
+	double velocity = v.GetLength();
+	q = Atm1.Ro * velocity * velocity / 2;
+	double mahh = velocity / Atm1.a;
+	
+	lambda = 2 * atan2(Point_X, (Point_Y + R_earth + r));
+	L = R_earth * (lambda - omega_earth * Time);
+
+	v_g.X = Speed_X * cos(lambda) - Speed_Y * sin(lambda) - omega_earth * R_earth * cos(latitude);
+	v_g.Y = Speed_Y * cos(lambda) + Speed_X * sin(lambda);
+	velocity_g = v_g.GetLength();
+
+	TETA_C = 2 * atan2(v.Y, (v.X + velocity));
+	TETA_mestn = asin((Point_X * Speed_X + (Point_Y + R_earth) * Speed_Y) / (r * velocity));
+	Pitch_g = Pitch + lambda; // минус
+
+	Matrix A_;//Матрица перехода от норм. земн. с.к. к связанной
+	A_.GetMatrix(ro_rg, lamda_rg, mu_rg, nu_rg);
+	Matrix A = A_;//Матрица перехода от связанной с.к. к норм. земн.
+	A = ~A; // М-ца перехода от связанной к норм - это транспонированная от норм к связанной
+	v = A_ * v;//Скорость в связанной системе коррдинат 
+
+	Alfa = -atan2(v.Y, v.X);
+
+	if (fabs(v.Z / velocity) <= 1.0)
+		Betta = asin(v.Z / velocity);
+	else
+	{
+		Betta = asin((v.Z / velocity) / fabs(v.Z / velocity));
+	}
+
+	double AlfaSpace = sqrt(pow((Alfa), 2) + pow((Betta), 2));
+	Aerodynamic objAerodynamic(mahh, AlfaSpace, Alfa, Betta);
+
+	Vector F, M, Gg;
+
+
+
+	F.X = -Missile1.Cx(mahh, AlfaSpace) * q * SquareMiddle;
+	F.Y = (Missile1.Cy(mahh, Alfa) * Alfa) * q * SquareMiddle;
+	F.Z = (Missile1.Cz(mahh, Betta) * Betta) * q * SquareMiddle;
+
+	M.X = (Missile1.Mx_wx(mahh, AlfaSpace) * omegaX * Length / velocity) * q * SquareMiddle * Length;
+	M.Y = (Missile1.My_wy(mahh, Betta) * omegaY * Length / velocity + Missile1.My_betta(mahh, Betta) * Betta) * q * SquareMiddle * Length;
+	M.Z = (Missile1.Mz_wz(mahh, Alfa) * omegaZ * Length / velocity + Missile1.Mz_alfa(mahh, Alfa) * Alfa) * q * SquareMiddle * Length;
+
+
+
+	//omegaXdm = velocity*Mxvr(mahh,AlfaSpace)/(Mx_wx(mahh,AlfaSpace)*DiametrMiddle);
+	//omegaZdm = sqrt(-Mz_alfa(mahh,Alfa)*q*SquareMiddle*Length/Iz);
+	Gg.X = 0;
+	Gg.Y = -Atm1.g * Mass;
+	Gg.Z = 0;
+
+
+	Vector fg;
+	//fg = A * F;
+	fg = A * (F);
+	fg = fg + Gg; //Записали все в нормальной земной
+	//  TempPower=fg;
+
+
+	if (fabs(Speed_Y / velocity) <= 1.0)
+		TETA = asin(Speed_Y / velocity);
+	else
+	{
+		TETA = asin((Speed_Y / velocity) / fabs(Speed_Y / velocity));
+	}
+
+	PSI = atan2(-Speed_Z, Speed_X);
+
+
+	pr1Speed_X = fg.X / Mass;
+	pr1Speed_Y = fg.Y / Mass;
+	pr1Speed_Z = fg.Z / Mass;
+	pr1Point_X = Speed_X;
+	pr1Point_Y = Speed_Y;
+	pr1Point_Z = Speed_Z;
+	pr1omegaX = M.X / Ix - (Iz - Iy) * omegaY * omegaZ / Ix;
+	pr1omegaY = M.Y / Iy - (Ix - Iz) * omegaX * omegaZ / Iy;
+	pr1omegaZ = M.Z / Iz - (Iy - Ix) * omegaX * omegaY / Iz;
+	pr1ro_rg = -(omegaX * lamda_rg + omegaY * mu_rg + omegaZ * nu_rg) / 2;
+	pr1lamda_rg = (omegaX * ro_rg - omegaY * nu_rg + omegaZ * mu_rg) / 2;
+	pr1mu_rg = (omegaX * nu_rg + omegaY * ro_rg - omegaZ * lamda_rg) / 2;
+	pr1nu_rg = (-omegaX * mu_rg + omegaY * lamda_rg + omegaZ * ro_rg) / 2;
+
+
+	/*cout
+	<< pr1Speed_gX << "   "
+	<< pr1Speed_gY << "   "
+	<< pr1Speed_gZ << "   "
+	<< Speed_gX  << "   "
+	<< Speed_gY  << "   "
+	<< Speed_gZ  << "   "
+	<< pr1omegaZ << "   "
+	<< pr1ro_rg << "   "
+	<< pr1lamda_rg << "   "
+	<< pr1mu_rg << "   "
+	<< pr1nu_rg << "   "
+	<< q <<
+		endl;*/
+
+		//cout << F.X << " " << F.Y << endl;
+};
+
+void Rks4(int Size)
+{
+
+	double a[5];
+	double* elTemp;
+	double* elh;
+
+	elTemp = new double[Size];
+	elh = new double[Size];
+	a[0] = a[1] = a[4] = Step / 2; a[2] = a[3] = Step;
+
+	for (int i = 0; i < Size; i++)
+		elTemp[i] = elh[i] = el[i];
+	for (int i = 0; i < 4; i++)
+	{
+		RightPart(Time);
+
+		for (int i = 0; i < Size; i++)
+			el[i] = elTemp[i];
+
+		for (int j = 0; j < Size; j++)
+		{
+			elh[j] += a[i + 1] * Left[j] / 3.0;
+			el[j] += a[i] * Left[j];
+		}
+
+	}
+
+	if (elh[4] < 0)
+	{
+		Step = Step * (0 - elTemp[4]) / (elh[4] - elTemp[4]);
+		a[0] = a[1] = a[4] = Step / 2; a[2] = a[3] = Step;
+		for (int i = 0; i < Size; i++)
+		{
+			el[i] = elTemp[i];
+		}
+		for (int i = 0; i < Size; i++) //Цикл для элементов массива
+			elh[i] = el[i];
+		for (int i = 0; i < 4; i++)
+		{
+			RightPart(Time);
+
+			for (int j = 0; j < Size; j++)
+			{
+				elh[j] += a[i + 1] * Left[j] / 3;
+				el[j] += a[i] * Left[j];
+			}
+		}
+		for (int i = 0; i < Size; i++)
+		{
+			el[i] = elh[i];
+		};
+
+		double rg = sqrt(el[9] * el[9] + el[10] * el[10] + el[11] * el[11] + el[12] * el[12]);
+		double rgh = sqrt(elh[9] * elh[9] + elh[10] * elh[10] + elh[11] * elh[11] + elh[12] * elh[12]);
+
+		for (int j = 0; j < Size; j++)
+		{
+			el[j] = el[j] / rg;
+			elh[j] = elh[j] / rgh;
+		}
+
+	}
+	else {
+		for (int i = 0; i < Size; i++)
+		{
+			el[i] = elh[i];
+		};
+		double rg = sqrt(el[9] * el[9] + el[10] * el[10] + el[11] * el[11] + el[12] * el[12]);
+		double rgh = sqrt(elh[9] * elh[9] + elh[10] * elh[10] + elh[11] * elh[11] + elh[12] * elh[12]);
+
+		for (int j = 0; j < Size; j++)
+		{
+			el[j] = el[j] / rg;
+			elh[j] = elh[j] / rgh;
+		}
+	}
+
+	delete[] elTemp;
+	delete[] elh;
+
+};
+
+
+void main(void)
+{
+
+
+	el = new double[14];
+	Left = new double[14];
+
+	FILE* fError;
+	fError = fopen("fError.err", "w");
+
+	/*начальные условия фигурирующие в интерфейсе, но напрямую неиспользующиеся в программном обеспечении*/
+
+
+	FILE* FDATE;
+	if ((FDATE = fopen("dasha.txt", "r")) == NULL) return;
+
+	char cc[256];
+	int num = sizeof(cc) / sizeof(char);
+
+
+	while (fgets(cc, num, FDATE) != NULL)
+	{
+
+		if (strstr(cc, "X0") != NULL)Point_X = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Y0") != NULL)Point_Y = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Z0") != NULL)Point_Z = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "V0") != NULL)Speed = StrFileToDouble(cc, fError);//el
+
+		if (strstr(cc, "Alfa0") != NULL) Alfa = StrFileToDouble(cc, fError) / ToDegree();
+		if (strstr(cc, "Betta0") != NULL) Betta = StrFileToDouble(cc, fError) / ToDegree();
+		if (strstr(cc, "Pitch0") != NULL) Pitch = StrFileToDouble(cc, fError) / ToDegree();
+		if (strstr(cc, "Yaw0") != NULL) Yaw = StrFileToDouble(cc, fError) / ToDegree();
+		if (strstr(cc, "Roll0") != NULL) Roll = StrFileToDouble(cc, fError) / ToDegree();
+		if (strstr(cc, "Wx0") != NULL) omegaX = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Wy0") != NULL) omegaY = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Wz0") != NULL) omegaZ = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "B") != NULL) latitude = StrFileToDouble(cc, fError);
+
+		/*Массово-инерционные и геометрические характеристики*/
+		if (strstr(cc, "m0") != NULL) Mass = StrFileToDouble(cc, fError);
+		if (strstr(cc, "Ix0") != NULL) Ix = StrFileToDouble(cc, fError);
+		if (strstr(cc, "Iy0") != NULL) Iy = StrFileToDouble(cc, fError);
+		if (strstr(cc, "Iz0") != NULL) Iz = StrFileToDouble(cc, fError);
+		if (strstr(cc, "LengthLA") != NULL) Length = StrFileToDouble(cc, fError);
+		if (strstr(cc, "Dm") != NULL) DiametrMiddle = StrFileToDouble(cc, fError);
+
+	} /*конец блока считывания данных*/
+
+	Speed_X = Speed * cos(Pitch);
+	Speed_Y = Speed * sin(Pitch);
+	Speed_Z = 0;
+
+	using namespace std;
+
+
+	SquareMiddle = M_PI * pow(DiametrMiddle, 2) / 4;
+
+	ro_rg = cos(Yaw / 2) * cos(Pitch / 2) * cos(Roll / 2) - sin(Yaw / 2) * sin(Pitch / 2) * sin(Roll / 2);
+	lamda_rg = sin(Yaw / 2) * sin(Pitch / 2) * cos(Roll / 2) + cos(Yaw / 2) * cos(Pitch / 2) * sin(Roll / 2);
+	mu_rg = sin(Yaw / 2) * cos(Pitch / 2) * cos(Roll / 2) + cos(Yaw / 2) * sin(Pitch / 2) * sin(Roll / 2);
+	nu_rg = cos(Yaw / 2) * sin(Pitch / 2) * cos(Roll / 2) - sin(Yaw / 2) * cos(Pitch / 2) * sin(Roll / 2);
+
+
+	ofstream file;
+	file.open("file_result.txt");
+	if (print) 
+	{
+		file << setw(20) << "Time" << " "
+			<< setw(20) << "Mass" << " "
+			<< setw(20) << "Point_X" << " "
+			<< setw(20) << "Point_Y" << " "
+			<< setw(20) << "Point_Z" << " "
+			<< setw(20) << "Speed_X" << " "
+			<< setw(20) << "Speed_Y" << " "
+			<< setw(20) << "Speed_Z" << " "
+			<< setw(20) << "h" << " "
+			<< setw(20) << "Pitch" << " "
+			<< setw(20) << "Yaw" << " "
+			<< setw(20) << "Roll" << " "
+			<< setw(20) << "TETA" << " "
+			<< setw(20) << "Alfa" << " "
+			<< setw(20) << "Betta" << " "
+			<< setw(20) << "Omegax" << " "
+			<< setw(20) << "Omegay" << " "
+			<< setw(20) << "Omegaz" << " "
+			<< setw(20) << "L" << " "
+			<< setw(20) << "lambda" << " "
+			<< setw(20) << "TETA_C" << " "
+			<< setw(20) << "V_gx" << " "
+			<< setw(20) << "V_gy" << " "
+			<< endl;
+	}
+
+	do
+	{
+
+		Step = 0.0001;
+		if 
+		double fraction, integer;
+		fraction = modf(Time * 10, &integer);
+		if ((fraction < 1E-10) || (abs(1 - fraction) < 1E-5)) {
+
+			file << setw(20) << Time << " "
+				<< setw(20) << Mass << " "
+				<< setw(20) << Point_X/1000.0 << " "
+				<< setw(20) << Point_Y/1000.0 << " "
+				<< setw(20) << Point_Z << " "
+				<< setw(20) << Speed_X << " "
+				<< setw(20) << Speed_Y << " "
+				<< setw(20) << Speed_Z << " "
+				<< setw(20) << h << " "
+				<< setw(20) << Pitch * ToDegree() << " "
+				<< setw(20) << Yaw * ToDegree() << " "
+				<< setw(20) << Roll * ToDegree() << " "
+				<< setw(20) << TETA * ToDegree() << " "
+				<< setw(20) << Alfa * ToDegree() << " "
+				<< setw(20) << Betta * ToDegree() << " "
+				<< setw(20) << omegaX << " "
+				<< setw(20) << omegaY << " "
+				<< setw(20) << omegaZ << " "
+				<< setw(20) << L << " "
+				<< setw(20) << lambda << " "
+				<< setw(20) << TETA_C << " "
+				<< endl;
+		};
+		Rks4(14);
+		Time += Step;
+
+		if (abs(Point_Y) < 1E-5)
+		{
+			file << setw(20) << Time << " "
+				<< setw(20) << Mass << " "
+				<< setw(20) << Point_X/1000.0 << " "
+				<< setw(20) << Point_Y/1000.0 << " "
+				<< setw(20) << Point_Z << " "
+				<< setw(20) << Speed_X << " "
+				<< setw(20) << Speed_Y << " "
+				<< setw(20) << Speed_Z << " "
+				<< setw(20) << Pitch * ToDegree() << " "
+				<< setw(20) << Yaw * ToDegree() << " "
+				<< setw(20) << Roll * ToDegree() << " "
+				<< setw(20) << TETA * ToDegree() << " "
+				<< setw(20) << Alfa * ToDegree() << " "
+				<< setw(20) << Betta * ToDegree() << " "
+				<< setw(20) << omegaX << " "
+				<< setw(20) << omegaY << " "
+				<< setw(20) << omegaZ << " "
+				<< setw(20) << L << " "
+				<< setw(20) << lambda << " "
+				<< setw(20) << TETA_C << " "
+				<< endl;
+		}
+
+
+	} while (abs(Point_Y) > 1E-5);
+
+
+	delete[] el;
+	delete[] Left;
+
+
+
+	file.close();
+
+
+}
+
+
+
+// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
+// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
+
+// Советы по началу работы 
+//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
+//   2. В окне Team Explorer можно подключиться к системе управления версиями.
+//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
+//   4. В окне "Список ошибок" можно просматривать ошибки.
+//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
+//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
