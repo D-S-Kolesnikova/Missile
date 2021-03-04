@@ -36,10 +36,10 @@ Earth_Struct	GetEarthParameters(double H, double B)
 	double  R_phi, R_lambda;		//Главные радиусы кривизны поверхности эллипсоида вращения
 	double  R_gd0;					//Вспомогательный радиус-вектор на поверхности Земли в ГцССК
 	double  phi_gr0, phi_gr;		//Геоцентрическая широта
-	Vector3 F1_GCS;					//Проекции вектора напряженности поля тяготения на ГцССК
-	Vector3 F1_GS;					//Проекции вектора напряженности поля тяготения на ГССК
-	Vector3 AcclCp_GS;				//Проекции вектора центростремительного ускорения на ГССК
-	Vector3 F2_GS;					//Проекции вектора напряженности поля силы тяжести на ГССК
+	Vector F1_GCS;					//Проекции вектора напряженности поля тяготения на ГцССК
+	Vector F1_GS;					//Проекции вектора напряженности поля тяготения на ГССК
+	Vector AcclCp_GS;				//Проекции вектора центростремительного ускорения на ГССК
+	Vector F2_GS;					//Проекции вектора напряженности поля силы тяжести на ГССК
 
 	double R_gd;					//Радиус-вектор положения центра масс ЛА в ГцССК
 
@@ -71,7 +71,8 @@ Earth_Struct	GetEarthParameters(double H, double B)
 	AcclCp_GS.Y = _SQR(EARTH_RATE) * R_gd * (-_SQR(cos(B)) * cos(B - phi_gr) - sin(B) * cos(B) * sin(B - phi_gr));
 	AcclCp_GS.Z = 0.;
 
-	F2_GS = sub_vector3(F1_GS, AcclCp_GS);
+	F2_GS = F1_GS - AcclCp_GS;
+	//F2_GS = sub_vector3(F1_GS, AcclCp_GS);
 
 	OutStruct.A_gd = A_GD;
 	OutStruct.G_eq = G_EQUATOR;

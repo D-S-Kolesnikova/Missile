@@ -367,7 +367,7 @@ void set_svsk_nearth_matrix33(Matrix33 Matrix, double theta, double psi, double 
 //Матрица перехода от нормальной земной к связанной с.к.(в параметрах Родриго-Гамильтона)
 void set_nearth_svsk_rg_matrix33(Matrix33 Matrix, double r, double l, double mm, double n);
 //Матрица перехода от ГССК к СтСК
-void set_GSSK_STSK_matrix33(Matrix33 Matrix, double B0, double L0, double PSI0, double B, double L);
+
 /*2.4. Инициализация нулевой матрицы*/
 void set_zero_matrix33(Matrix33 Matrix);
 /*2.5. Инициализация единичной матрицы*/

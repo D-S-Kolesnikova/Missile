@@ -23,7 +23,7 @@
 //Обозначения переменных соответствуют обозначениям в файле "Уравнения ЛА в СКС (эллипсоид)"
 //////////////////////////////////////////////////////////////////////////////////
 
-#include "math_lib.h"
+#include "Matrix+Vector.h"
 
 
 typedef struct {
@@ -35,8 +35,8 @@ typedef struct {
 	double R_lambda;
 	double R_gd;
 	double phi_gr;
-	vector3 AcclCp_GS;
-	vector3 GField;
+	Vector AcclCp_GS;
+	Vector GField;
 }  Earth_Struct;
 
 void			EarthModelIni(double a_gd, double e_gd, double g_eq, double e_rate); //Функция инициализации параметров модели Земли

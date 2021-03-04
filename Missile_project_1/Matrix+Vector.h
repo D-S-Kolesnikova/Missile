@@ -69,7 +69,14 @@ struct Vector
 		return pos_new;
 	};
 
-	
+	friend Vector  operator * (Vector pos, double number)
+	{
+		Vector pos_new;
+		pos_new.X = pos.X * number;
+		pos_new.Y = pos.Y * number;
+		pos_new.Z = pos.Z * number;
+		return pos_new;
+	};
 	/*Vector& operator = (Vector& pos)
 	{
 		pos.X = X;
@@ -82,8 +89,6 @@ struct Vector
 
 class Matrix
 {
-//protected:
-	//double m[3][3];
 
 public:
 	double m[3][3];
@@ -274,14 +279,7 @@ public:
 		return pos_new;
 	};
 
-	friend Vector  operator * (Vector pos, double number)
-	{
-		Vector pos_new;
-		pos_new.X = pos.X * number;
-		pos_new.Y = pos.Y * number;
-		pos_new.Z = pos.Z * number;
-		return pos_new;
-	};
+
 
 	friend Matrix  operator / (Matrix pos, double number)
 	{
@@ -336,4 +334,23 @@ public:
 
 	
 };
-//----------------------------Array.h (end)------
+
+
+void set_GSSK_STSK_matrix33(Matrix Matrix, double B0, double L0, double PSI0, double B, double L) {
+
+	/* Матрицы перехода */
+	//Матрица перехода от ГССК к СтСК
+
+	Matrix.m[0][0] = cos(B0) * cos(PSI0) * cos(B) + sin(B) * (cos(PSI0) * cos(L0 - L) * sin(B0) + sin(PSI0) * sin(L0 - L));
+	Matrix.m[0][1] = cos(PSI0) * (-cos(B) * cos(L0 - L) * sin(B0) + cos(B0) * sin(B)) - cos(B) * sin(PSI0) * sin(L0 - L);
+	Matrix.m[0][2] = cos(L0 - L) * sin(PSI0) - cos(PSI0) * sin(B0) * sin(L0 - L);
+	Matrix.m[1][0] = cos(B) * sin(B0) - cos(B0) * cos(L0 - L) * sin(B);
+	Matrix.m[1][1] = cos(B0) * cos(B) * cos(L0 - L) + sin(B0) * sin(B);
+	Matrix.m[1][2] = cos(B0) * sin(L0 - L);
+	Matrix.m[2][0] = -sin(PSI0) * (cos(B0) * cos(B) + cos(L0 - L) * sin(B0) * sin(B)) + cos(PSI0) * sin(B) * sin(L0 - L);
+	Matrix.m[2][1] = -cos(B0) * sin(PSI0) * sin(B) + cos(B) * (cos(L0 - L) * sin(B0) * sin(PSI0) - cos(PSI0) * sin(L0 - L));
+	Matrix.m[2][2] = cos(PSI0) * cos(L0 - L) + sin(B0) * sin(PSI0) * sin(L0 - L);
+
+	return;
+
+}

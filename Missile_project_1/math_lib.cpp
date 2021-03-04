@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
 #include <conio.h>
-
+#include "Matrix+Vector.h"
 #include "math_lib.h"
 #include "macros.h"
 
@@ -664,21 +664,3 @@ double pow10(int number) {
 	return Pow10;
 }
 
-void set_GSSK_STSK_matrix33(Matrix33 Matrix, double B0, double L0, double PSI0, double B, double L) {
-
-	/* Матрицы перехода */
-	//Матрица перехода от ГССК к СтСК
-
-	Matrix[0][0] = cos(B0) * cos(PSI0) * cos(B)+ sin(B)*(cos(PSI0)*cos(L0-L)*sin(B0)+sin(PSI0)*sin(L0-L));
-	Matrix[0][1] = cos(PSI0) * (-cos(B) * cos(L0 - L) * sin(B0) + cos(B0) * sin(B)) - cos(B) * sin(PSI0) * sin(L0 - L);
-	Matrix[0][2] = cos(L0 - L) * sin(PSI0) - cos(PSI0) * sin(B0) * sin(L0 - L);
-	Matrix[1][0] = cos(B) * sin(B0) - cos(B0) * cos(L0 - L)*sin(B);
-	Matrix[1][1] = cos(B0) * cos(B) * cos(L0 - L) + sin(B0) * sin(B);
-	Matrix[1][2] = cos(B0) * sin(L0 - L);
-	Matrix[2][0] = -sin(PSI0) * (cos(B0) * cos(B) + cos(L0 - L) * sin(B0) * sin(B)) + cos(PSI0) * sin(B) * sin(L0 - L);
-	Matrix[2][1] = -cos(B0) * sin(PSI0) * sin(B) + cos(B) * (cos(L0 - L) * sin(B0) * sin(PSI0) - cos(PSI0) * sin(L0 - L));
-	Matrix[2][2] = cos(PSI0) * cos(L0 - L) + sin(B0) * sin(PSI0) * sin(L0 - L);
-
-	return;
-
-}

@@ -149,21 +149,21 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 
 	EarthModelIni(Earth.A_gd, Earth.E_gd, Earth.G_eq, Earth.Rate);
 	Earth_Struct OutStruct = GetEarthParameters(H_, B_);
-	Matrix33 MatrixGS_ST;
+	Matrix MatrixGS_ST;
 	set_GSSK_STSK_matrix33(MatrixGS_ST, InData.B42, InData.L42, PSI, B_, L_);
-	Vector3 Vector1 = mult_matrix33_vector3(MatrixGS_ST, OutStruct.GField);
+	//Vector3 Vector1 = mult_matrix33_vector3(MatrixGS_ST, OutStruct.GField);
+	Vector Vector1 = MatrixGS_ST * OutStruct.GField;
+	Gg = Vector1 * Rocket.mass;
 
-	Gg.X = Vector1.X * Rocket.mass;
-	Gg.Y = Vector1.Y * Rocket.mass;
-	Gg.Z = Vector1.Z * Rocket.mass;
+	//Внесены изменения 
 
 	Vector fg;
 	//fg = A * F;
 	fg = A * (F);
 	fg = fg + Gg; //Записали все в нормальной земной
 	//  TempPower=fg;
-	Vector3 Speed = { Speed_X, Speed_Y, Speed_Z };
-	Vector3 GS_V = mult_matrix33_vector3(MatrixGS_ST, Speed);
+
+	Vector GS_V = MatrixGS_ST * v;
 
 	pr1Speed_X = fg.X / Rocket.mass;
 	pr1Speed_Y = fg.Y / Rocket.mass;
