@@ -4,10 +4,9 @@ typedef struct Initial_Conditions
 	double X0;
 	double Y0;
 	double Z0;
-	double B42;
-	double H42;
-	double L42;
-	double A0;
+	double X_1;
+	double Y_1;
+	double H_1;
 	double V0;
 	double Alfa0;
 	double Betta0;

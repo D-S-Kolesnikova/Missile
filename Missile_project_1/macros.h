@@ -1,7 +1,7 @@
 /* математические макросы */
 #define _SQR(w) ((w)*(w)) // квадрат числа
 
-/*#define	pr1Speed_X Left[0]
+#define	pr1Speed_X Left[0]
 #define	pr1Speed_Y Left[1]
 #define	pr1Speed_Z Left[2]
 #define	pr1Point_X Left[3]
@@ -44,8 +44,6 @@
 #define ROLL angle[4]
 #define TETA angle[5]
 #define PSI angle[6]
+#define L42 angle[7]
+#define B42 angle[8]
 
-double* el;
-double* Left;
-double* Time;
-double* angle;*/

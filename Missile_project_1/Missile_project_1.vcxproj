@@ -153,7 +153,9 @@
   <ItemGroup>
     <ClCompile Include="EarthModel.cpp" />
     <ClCompile Include="math_lib.cpp" />
+    <ClCompile Include="Missile.cpp" />
     <ClCompile Include="Missile_project_1.cpp" />
+    <ClCompile Include="Matrix+Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Aerodynamics.h" />

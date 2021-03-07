@@ -421,7 +421,7 @@ Vector3 mult_num_vector3(double number, Vector3 vector);
 Vector3 multvect_vector3(Vector3 vector_1, Vector3 vector_2);
 /*3.17. Покомпонентное сложение вектора и числа*/
 Vector3 add_num_vector3(double number, Vector3 vector);
-
+void set_GSSK_STSK_matrix33(Matrix33 Matrix, double B0, double L0, double PSI0, double B, double L);
 /*функции ввода-вывода векторов и матриц*/
 /*4.1. Печать вектора поэлементно*/
 void print_console_vector3(Vector3 Vector);                     // печать на консоль (экран)

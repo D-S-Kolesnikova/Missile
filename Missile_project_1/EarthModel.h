@@ -39,5 +39,6 @@ typedef struct {
 	Vector GField;
 }  Earth_Struct;
 
+void Gss_Kr_to_SK42(double x, double y, double& B42_, double& L42_);
 void			EarthModelIni(double a_gd, double e_gd, double g_eq, double e_rate); //Функция инициализации параметров модели Земли
 Earth_Struct	GetEarthParameters(double H, double B);  //Функция расчёта параметров модели Земли
