@@ -16,6 +16,7 @@ typedef struct Initial_Conditions
 	double Wx0;
 	double Wy0;
 	double Wz0;
+
 }Initial_Conditions;
 
 typedef struct Object

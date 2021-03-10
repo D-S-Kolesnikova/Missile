@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EarthModel(ПЗ90).cpp" />
     <ClCompile Include="EarthModel.cpp" />
     <ClCompile Include="math_lib.cpp" />
     <ClCompile Include="Missile.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Aerodynamics.h" />
     <ClInclude Include="Atmosfera.h" />
     <ClInclude Include="dig.h" />
+    <ClInclude Include="EarthModel(ПЗ90).h" />
     <ClInclude Include="EarthModel.h" />
     <ClInclude Include="Initialisation_.h" />
     <ClInclude Include="Integration.h" />

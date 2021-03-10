@@ -1,5 +1,5 @@
 #include <math.h>
-
+#include <iostream>
 #include "Matrix+Vector.h"
 
 
@@ -72,6 +72,50 @@ Vector  operator * (Vector pos, double number)
 	pos_new.Z = pos.Z * number;
 	return pos_new;
 };
+
+
+double Matrix:: DET_Matrix() {
+
+	/*3.7. Вычисление определителя матрицы*/
+	return   m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+		- m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+		+ m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+
+}
+
+void Matrix::Inverse_Matrix() {
+
+	/*3.8. Обращение матрицы, после этой операции матрица Мatrix будет обращенной
+	Функция возвращает 0 при успешном обращении и 1 при вырожденной матрице*/
+
+	double det; int i,j;
+
+	det = DET_Matrix();
+
+	// проверка на вырожденность матрицы
+	if (det == 0.) {
+		std::cout << "Матрица вырожденная!";
+	}
+
+	Matrix k;
+	k.m[0][0] = (m[1][1] * m[2][2] - m[1][2] * m[2][1]) / det;
+	k.m[1][0] = -(m[1][0] * m[2][2] - m[1][2] * m[2][0]) / det;
+	k.m[2][0] = (m[1][0] * m[2][1] - m[1][1] * m[2][0]) / det;
+
+	k.m[0][1] = -(m[0][1] * m[2][2] - m[0][2] * m[2][1]) / det;
+	k.m[1][1] = (m[0][0] * m[2][2] - m[0][2] * m[2][0]) / det;
+	k.m[2][1] = -(m[0][0] * m[2][1] - m[0][1] * m[2][0]) / det;
+
+	k.m[0][2] = (m[0][1] * m[1][2] - m[0][2] * m[1][1]) / det;
+	k.m[1][2] = -(m[0][0] * m[1][2] - m[0][2] * m[1][0]) / det;
+	k.m[2][2] = (m[0][0] * m[1][1] - m[0][1] * m[1][0]) / det;
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			m[i][j] = k.m[i][j];
+		}
+	}
+}
 
 void Matrix::GetMatrix(double tetta, double psi, double gamma)
 {
@@ -146,6 +190,21 @@ void Matrix::GSSK_STSK(double B0, double L0, double PSI0, double B, double L)
 	m[2][0] = -sin(PSI0) * (cos(B0) * cos(B) + cos(L0 - L) * sin(B0) * sin(B)) + cos(PSI0) * sin(B) * sin(L0 - L);
 	m[2][1] = -cos(B0) * sin(PSI0) * sin(B) + cos(B) * (cos(L0 - L) * sin(B0) * sin(PSI0) - cos(PSI0) * sin(L0 - L));
 	m[2][2] = cos(PSI0) * cos(L0 - L) + sin(B0) * sin(PSI0) * sin(L0 - L);
+}
+
+void Matrix::GSSK_SVSK(double psi, double tetta, double gamma)
+{
+	m[0][0] = cos(tetta) * cos(psi) + sin(gamma) * sin(tetta)* sin(psi);
+	m[0][1] = cos(gamma) * sin(tetta);
+	m[0][2] = sin(tetta) * cos(psi) * sin(gamma) - sin(psi) * cos(gamma);
+
+	m[1][0] = -cos(psi) * sin(tetta) + sin(gamma) * cos(tetta) * sin(psi);
+	m[1][1] = cos(tetta) * cos(gamma);
+	m[1][2] = cos(psi) * cos(tetta) * sin(gamma) + sin(tetta) * sin(psi);
+
+	m[2][0] = cos(gamma) * sin(psi);
+	m[2][1] = -sin(gamma);
+	m[2][2] = cos(psi) * cos(gamma);
 }
 
 void Matrix::InitNull()
@@ -274,6 +333,7 @@ Matrix  operator / (Matrix pos, double number)
 };
 
 
+ //Векторное умножение (обозначается так [a,b] или так a x b)
  Vector  operator % (Vector a, Vector b)
 {
 	Vector pos_new;

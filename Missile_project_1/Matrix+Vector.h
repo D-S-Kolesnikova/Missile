@@ -30,6 +30,7 @@ public:
 	friend Vector  operator - (Vector pos1, Vector pos2);
 	friend Vector  operator * (double number, Vector pos);
 	friend Vector  operator * (Vector pos, double number);
+	friend Vector  operator % (Vector a, Vector b);
 
 };
 class Matrix
@@ -38,13 +39,14 @@ protected:
 		double m[3][3];
 
 public:
-	
+	double DET_Matrix();
+	void Inverse_Matrix();
 	void GetMatrix(double tetta, double psi, double gamma);
-
 	void GetMatrix(double r, double l, double mm, double n);
 	void GetMatrix(double nu, double mu);
 	void TestGetMatrix(double a1, double a2, double a3, double a4, double a5, double a6, double a7, double a8, double a9);
 	void GSSK_STSK(double B0, double L0, double PSI0, double B, double L);
+	void GSSK_SVSK(double psi, double tetta, double gamma);
 	void InitNull();
 	friend Matrix& operator ~ (Matrix& pos);
 	friend Matrix  operator + (Matrix pos1, Matrix pos2);

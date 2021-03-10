@@ -31,7 +31,9 @@ void main(void)
 	el = new double[16];
 	Left = new double[16];
 	angle = new double[9];
+	Eiler = new double[6];
 	Time = new double[1];
+
 
 	Initial_Conditions InData = {};
 	Object Rocket = {};
@@ -68,11 +70,15 @@ void main(void)
 
 	SetAngle();
 
+	DeltaPitch = 0;
+	DeltaRoll = 0;
+	DeltaYaw = 0;
+
 	double j = 0, Step, PrintStep;
 	Step = ParamStr.Step;
 	PrintStep = ParamStr.PrintStep;
 
-		for (TIME; abs(Point_Y) > 1E-8; TIME += Step)
+		for (TIME; Point_Y > 0; TIME += Step)
 		{
 			if (abs(TIME - j) < 1E-8)
 			{
@@ -80,6 +86,10 @@ void main(void)
 					Print_();
 			};
 			Rks4(17, Rocket,InData, ParamStr, Earth);
+			if (Point_Y < 0)
+			{
+				break;
+			}
 			if (abs(Point_Y) < 1E-5)
 			{
 				Print_();		

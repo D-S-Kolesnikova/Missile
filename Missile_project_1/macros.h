@@ -35,6 +35,7 @@
 #define	L_    el[14]
 #define	H_    el[15]
 
+
 #define TIME Time[0]
 
 #define ALFA angle[0]
@@ -46,4 +47,11 @@
 #define PSI angle[6]
 #define L42 angle[7]
 #define B42 angle[8]
+
+#define pr1Pitch Eiler[0]
+#define pr1Yaw Eiler[1]
+#define pr1Roll Eiler[2]
+#define DeltaPitch Eiler[3]
+#define DeltaYaw Eiler[4]
+#define DeltaRoll Eiler[5]
 

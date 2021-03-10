@@ -30,6 +30,9 @@
     <ClCompile Include="Missile.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
+    <ClCompile Include="EarthModel(ПЗ90).cpp">
+      <Filter>Файлы ресурсов</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Aerodynamics.h">
@@ -72,6 +75,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Integration.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthModel(ПЗ90).h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

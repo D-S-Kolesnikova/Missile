@@ -64,10 +64,14 @@ void Initialisation(Initial_Conditions& Rocket1, Object& Rocket, ModelParams_Str
 		if (strstr(cc, "Step") != NULL) ParamStr.Step = StrFileToDouble(cc, fError);
 		if (strstr(cc, "PrintData") != NULL) ParamStr.PrintStep = StrFileToDouble(cc, fError);
 
-		/*Исходные данные модели Земли*/
-		if (strstr(cc, "A_GD") != NULL) Earth.A_gd = StrFileToDouble(cc, fError);
-		if (strstr(cc, "E_GD") != NULL)  Earth.E_gd = StrFileToDouble(cc, fError);
-		if (strstr(cc, "G_EQUATOR") != NULL)  Earth.G_eq = StrFileToDouble(cc, fError);
-		if (strstr(cc, "EARTH_RATE") != NULL) Earth.Rate = StrFileToDouble(cc, fError);
+		/*Исходные данные модели Земли("Эллипсоид Красовского)*/
+		if (strstr(cc, "A_GD_1") != NULL) Earth.A_gd = StrFileToDouble(cc, fError);
+		if (strstr(cc, "E_GD_1") != NULL)  Earth.E_gd = StrFileToDouble(cc, fError);
+		if (strstr(cc, "G_EQUATOR_1") != NULL)  Earth.G_eq = StrFileToDouble(cc, fError);
+		if (strstr(cc, "EARTH_RATE_1") != NULL) Earth.Rate = StrFileToDouble(cc, fError);
+
+		/*Исходные данные модели Земли("ПЗ90)*/
+
+
 	}
 }

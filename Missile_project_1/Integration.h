@@ -11,6 +11,7 @@ double* el;
 double* Left;
 double* Time;
 double* angle;
+double* Eiler;
 
 void SetAngle()
 {
@@ -54,73 +55,129 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	FILE* fError;
 	Missile Missile1;
 	ParamAtmosferaStruct Atm1;
-	SetAngle();
-	Atm1 = ParamAtmos(Point_Y);
-	Vector v(Speed_X, Speed_Y, Speed_Z);
-	double velocity = v.GetLength();
-	double q = Atm1.Ro * velocity * velocity / 2;
-	double mahh = velocity / Atm1.a;
 
-	Matrix A_;
-	A_.GetMatrix(ro_rg, lamda_rg, mu_rg, nu_rg);
-	Matrix A = A_;
-	A = ~A;
-
-	double AlfaSpace = sqrt(pow((ALFA), 2) + pow((BETTA), 2));
-	Vector F, M, Gg;
-
-	double SquareMiddle = M_PI * pow(Rocket.Dmiddle, 2) / 4;
-
-	F.X = -Missile1.Cx(mahh, AlfaSpace) * q * SquareMiddle;
-	F.Y = (Missile1.Cy(mahh, ALFA) * ALFA) * q * SquareMiddle;
-	F.Z = (Missile1.Cz(mahh, BETTA) * BETTA) * q * SquareMiddle;
-
-	M.X = (Missile1.Mx_wx(mahh, AlfaSpace) * omegaX * Rocket.LenghtLA / velocity) * q * SquareMiddle * Rocket.LenghtLA;
-	M.Y = (Missile1.My_wy(mahh, BETTA) * omegaY * Rocket.LenghtLA / velocity + Missile1.My_betta(mahh, BETTA) * BETTA) * q * SquareMiddle * Rocket.LenghtLA;
-	M.Z = (Missile1.Mz_wz(mahh, ALFA) * omegaZ * Rocket.LenghtLA / velocity + Missile1.Mz_alfa(mahh, ALFA) * ALFA) * q * SquareMiddle * Rocket.LenghtLA;
-
-	EarthModelIni(Earth.A_gd, Earth.E_gd, Earth.G_eq, Earth.Rate);
-	Earth_Struct OutStruct = GetEarthParameters(H_, B_);
-	/*Matrix33 MatrixGS_ST;
-		set_GSSK_STSK_matrix33(MatrixGS_ST, InData.B42, InData.L42, PSI, B_, L_);
-		Vector3 Vector1 = mult_matrix33_vector3(MatrixGS_ST, OutStruct.GField);
-	 - Закомментировала 07.03 перешла на определения через Vec_Matr из класса*/
-
+/*------------------Расчет матриц направляющих косинусов-----------------------*/
+// Матрица перехода от географической СК к стартовой СК
 	Matrix GS_ST;
 	GS_ST.GSSK_STSK(B42, L42, PSI, B_, L_);
+// Матрица перехода от стартовой СК к географической СК
+	Matrix ST_GS = ~GS_ST;
+//Матрица перехода от связанной СК к норм земной
+	Matrix A_;
+	A_.GetMatrix(ro_rg, lamda_rg, mu_rg, nu_rg);
+//Матрица перехода от норм земной к стартовой СК
+	Matrix A = A_;
+	A = ~A;
+//Матрица перехода от географического трехгранника к свзанному
+	Matrix GS_SV;
+	GS_SV.GSSK_SVSK(YAW, PITCH, ROLL);
+/*------------------Расчет линейных и угловых скоростей-----------------------*/
+//Линейная скорость в стартовой СК
+	Vector V_ST(Speed_X, Speed_Y, Speed_Z);
+//Линейная скорость в географической СК
+	Vector V_GS = GS_ST * V_ST;
+//Угловая скорость вращения СК42 в проекциях на оси географической СК
+	Vector RateEarth_GS(Earth.Rate * cos(B_), Earth.Rate * sin(B_), 0);
+//Угловая скорость вращения географической СК относительно осей СК42 в проекциях на оси стартовой СК
+	Vector RateEarth_ST = GS_ST * RateEarth_GS;
+//Угловая скорость вращения географической СК относительно осей СК42 в проекциях на оси связанной СК
+	Vector RateEarth_SV = GS_SV * RateEarth_GS;
+//Угловая скорость вращения географической СК относительно осей СК42 в проекциях на оси географической СК
+	Vector RateGS_GS(V_GS.Z / (H_ + Earth.R_lambda), V_GS.Z * tan(B_) / (H_ + Earth.R_lambda), -V_GS.X / (H_ + Earth.R_phi));
+//Угловая скорость вращения осей связанной СК относительно осей географической СК в проекциях на оси связанной СК	
+	Vector RateGS_SV = GS_SV * RateGS_GS;
+//Угловая скорость вращения Земли в проекциях на оси связанной СК
+	Vector RateSV_SV(omegaX, omegaY, omegaZ);
+//Абсолютная угловая скорость ЛА в проекциях на связанной СК
+	Vector RateAbs_SV = RateSV_SV + RateEarth_SV + RateGS_SV;
+//Функция расчета углов
+	SetAngle();
+
+	Atm1 = ParamAtmos(Point_Y);
+	double velocity = V_ST.GetLength();
+	double q = Atm1.Ro * velocity * velocity / 2;
+	double mahh = velocity / Atm1.a;
+	double AlfaSpace = sqrt(pow((ALFA), 2) + pow((BETTA), 2));
+	double SquareMiddle = M_PI * pow(Rocket.Dmiddle, 2) / 4;
+
+	double K_pitch1 = 2;
+	double K_yaw1 = 5;
+	double K_roll1 = 3;
+	double K_roll2 = 1;
+
+	pr1Pitch = omegaY * sin(ROLL) + omegaZ * cos(ROLL);
+	pr1Yaw = (omegaY * cos(ROLL) - omegaZ * sin(ROLL)) / cos(PITCH);
+	pr1Roll = omegaX - tan(PITCH) * (omegaY * cos(ROLL) - omegaZ * sin(ROLL));
+
+	DeltaPitch = -K_pitch1 * pr1Pitch;
+	DeltaYaw = -K_yaw1 * pr1Yaw;
+	DeltaRoll = -K_roll1 * ROLL - K_roll2 * pr1Roll;
+
+
+/*-------Расчет внешних сил и моментов, действующих на ЛА (кроме силы тяжести), в проекциях на СвСК----*/
+	Vector F, M, Gg;
+	
+	F.X = -Missile1.Cx(mahh, AlfaSpace) * q * SquareMiddle;
+	F.Y = (Missile1.Cy(mahh, ALFA) * ALFA + Missile1.Cy_delta(mahh, ALFA) * DeltaPitch) * q * SquareMiddle;
+	F.Z = (Missile1.Cz(mahh, BETTA) * BETTA + Missile1.Cz_delta(mahh,ALFA) * DeltaYaw) * q * SquareMiddle;
+
+	M.X = (Missile1.Mx_wx(mahh, AlfaSpace) * omegaX * Rocket.LenghtLA / velocity) * q * SquareMiddle * Rocket.LenghtLA;
+	M.Y = (Missile1.My_wy(mahh, BETTA) * omegaY * Rocket.LenghtLA / velocity + Missile1.My_betta(mahh, BETTA) * BETTA + Missile1.My_delta(mahh, BETTA) * DeltaYaw) * q * SquareMiddle * Rocket.LenghtLA;
+	M.Z = (Missile1.Mz_wz(mahh, ALFA) * omegaZ * Rocket.LenghtLA / velocity + Missile1.Mz_alfa(mahh, ALFA) * ALFA + Missile1.Mz_delta(mahh, ALFA) * DeltaPitch) * q * SquareMiddle * Rocket.LenghtLA;
+	
+//Инициализация числовых костанст для гравитационной модели
+	EarthModelIni(Earth.A_gd, Earth.E_gd, Earth.G_eq, Earth.Rate);
+//Расчет параметров гравитационной модели
+	Earth_Struct OutStruct = GetEarthParameters(H_, B_);
+//Проекция ускорения силы тяжести на оси географической СК
 	Vector G_GS;
 	G_GS = OutStruct.GField;
-
-	Vector V_ST = GS_ST * G_GS;
-	Gg = Rocket.mass * V_ST;
-
+//Проекция ускорения силы тяжести на оси стартовой СК
+	Vector G_ST = GS_ST * G_GS;
+//Проекция силы тяжести на оси стартовой СК
+	Gg = Rocket.mass * G_ST;
+//Кажущееся ускорение в проекциях на оси связанной СК	
 	Vector fg;
 	fg = A * F;
 	fg = fg + Gg;
+//Ускорение Кориолиса в проекциях на оси стартовой СК
+	Vector Accl_Kor = 2.0 * (RateEarth_ST % V_ST);
+//Абсолютное ускорение в проекциях на оси стартовой СК
+	Vector F_ST = fg * pow(Rocket.mass, -1.) - Accl_Kor;
+//Тензор инерции на оси связанной СК
+	Matrix J_SV;
+	J_SV.TestGetMatrix(Rocket.Ix0, 0, 0, 0, Rocket.Iy0, 0, 0, 0, Rocket.Iz0);
+//Производная тензора инерции на оси связанной СК
+	Matrix pr1_J_SV;
+	pr1_J_SV.InitNull();
+//Обратный тензор инерции на оси связанной СК
+	Matrix J_SV_inverse = J_SV;
+	J_SV_inverse.Inverse_Matrix();
+//Динамическое уравнение Эйлера
+	Vector pr1_RateAbs_SV;
+	pr1_RateAbs_SV = J_SV_inverse * (M - pr1_J_SV * RateAbs_SV - RateAbs_SV % (J_SV * RateAbs_SV));
 
-	/*	Vector3 Speed = { Speed_X, Speed_Y, Speed_Z };
-		Vector3 GS_V = mult_matrix33_vector3(MatrixGS_ST, Speed);
-	- Закомментировала 07.03 перешла на определения через Vec_Matr из класса*/
-
-	Vector GS_V = GS_ST * v;
-
-	pr1Speed_X = fg.X / Rocket.mass;
-	pr1Speed_Y = fg.Y / Rocket.mass;
-	pr1Speed_Z = fg.Z / Rocket.mass;
+	
+	pr1Speed_X = F_ST.X;
+	pr1Speed_Y = F_ST.Y;
+	pr1Speed_Z = F_ST.Z;
 	pr1Point_X = Speed_X;
 	pr1Point_Y = Speed_Y;
 	pr1Point_Z = Speed_Z;
-	pr1omegaX = M.X / Rocket.Ix0 - (Rocket.Iz0 - Rocket.Iy0) * omegaY * omegaZ / Rocket.Ix0;
-	pr1omegaY = M.Y / Rocket.Iy0 - (Rocket.Ix0 - Rocket.Iz0) * omegaX * omegaZ / Rocket.Iy0;
-	pr1omegaZ = M.Z / Rocket.Iz0 - (Rocket.Iy0 - Rocket.Ix0) * omegaX * omegaY / Rocket.Iz0;
+	pr1omegaX = pr1_RateAbs_SV.X;
+	pr1omegaY = pr1_RateAbs_SV.Y;
+	pr1omegaZ = pr1_RateAbs_SV.Z;
+	//pr1omegaX = M.X / Rocket.Ix0 - (Rocket.Iz0 - Rocket.Iy0) * omegaY * omegaZ / Rocket.Ix0;
+	//pr1omegaY = M.Y / Rocket.Iy0 - (Rocket.Ix0 - Rocket.Iz0) * omegaX * omegaZ / Rocket.Iy0;
+	//pr1omegaZ = M.Z / Rocket.Iz0 - (Rocket.Iy0 - Rocket.Ix0) * omegaX * omegaY / Rocket.Iz0;
 	pr1ro_rg = -(omegaX * lamda_rg + omegaY * mu_rg + omegaZ * nu_rg) / 2;
 	pr1lamda_rg = (omegaX * ro_rg - omegaY * nu_rg + omegaZ * mu_rg) / 2;
 	pr1mu_rg = (omegaX * nu_rg + omegaY * ro_rg - omegaZ * lamda_rg) / 2;
 	pr1nu_rg = (-omegaX * mu_rg + omegaY * lamda_rg + omegaZ * ro_rg) / 2;
-	pr1B = GS_V.X / (H_ + OutStruct.R_phi);
-	pr1L = GS_V.Z / (cos(B_) * (H_ + OutStruct.R_lambda));
-	pr1H = GS_V.Y;
-
+	pr1B = V_GS.X / (H_ + OutStruct.R_phi);
+	pr1L = V_GS.Z / (cos(B_) * (H_ + OutStruct.R_lambda));
+	pr1H = V_GS.Y;
+	
 };
 
 void Rks4(int Size, Object Rocket, Initial_Conditions InData, ModelParams_Struct Strct, Earth_Struct Earth)
