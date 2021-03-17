@@ -179,24 +179,24 @@ void Matrix::TestGetMatrix(double a1, double a2, double a3, double a4, double a5
 	m[2][2] = a9;
 };
 
-void Matrix::GSSK_STSK(double B0, double L0, double PSI0, double B, double L)
+void Matrix::GSSK_STSK(double B0, double L0, double Psi0, double B, double L)
 {
-	m[0][0] = cos(B0) * cos(PSI0) * cos(B) + sin(B) * (cos(PSI0) * cos(L0 - L) * sin(B0) + sin(PSI0) * sin(L0 - L));
-	m[0][1] = cos(PSI0) * (-cos(B) * cos(L0 - L) * sin(B0) + cos(B0) * sin(B)) - cos(B) * sin(PSI0) * sin(L0 - L);
-	m[0][2] = cos(L0 - L) * sin(PSI0) - cos(PSI0) * sin(B0) * sin(L0 - L);
+	m[0][0] = cos(B0) * cos(Psi0) * cos(B) + sin(B) * (cos(Psi0) * cos(L0 - L) * sin(B0) + sin(Psi0) * sin(L0 - L));
+	m[0][1] = cos(Psi0) * (-cos(B) * cos(L0 - L) * sin(B0) + cos(B0) * sin(B)) - cos(B) * sin(Psi0) * sin(L0 - L);
+	m[0][2] = cos(L0 - L) * sin(Psi0) - cos(Psi0) * sin(B0) * sin(L0 - L);
 	m[1][0] = cos(B) * sin(B0) - cos(B0) * cos(L0 - L) * sin(B);
 	m[1][1] = cos(B0) * cos(B) * cos(L0 - L) + sin(B0) * sin(B);
 	m[1][2] = cos(B0) * sin(L0 - L);
-	m[2][0] = -sin(PSI0) * (cos(B0) * cos(B) + cos(L0 - L) * sin(B0) * sin(B)) + cos(PSI0) * sin(B) * sin(L0 - L);
-	m[2][1] = -cos(B0) * sin(PSI0) * sin(B) + cos(B) * (cos(L0 - L) * sin(B0) * sin(PSI0) - cos(PSI0) * sin(L0 - L));
-	m[2][2] = cos(PSI0) * cos(L0 - L) + sin(B0) * sin(PSI0) * sin(L0 - L);
+	m[2][0] = -sin(Psi0) * (cos(B0) * cos(B) + cos(L0 - L) * sin(B0) * sin(B)) + cos(Psi0) * sin(B) * sin(L0 - L);
+	m[2][1] = -cos(B0) * sin(Psi0) * sin(B) + cos(B) * (cos(L0 - L) * sin(B0) * sin(Psi0) - cos(Psi0) * sin(L0 - L));
+	m[2][2] = cos(Psi0) * cos(L0 - L) + sin(B0) * sin(Psi0) * sin(L0 - L);
 }
 
 void Matrix::GSSK_SVSK(double psi, double tetta, double gamma)
 {
 	m[0][0] = cos(tetta) * cos(psi) + sin(gamma) * sin(tetta)* sin(psi);
 	m[0][1] = cos(gamma) * sin(tetta);
-	m[0][2] = sin(tetta) * cos(psi) * sin(gamma) - sin(psi) * cos(gamma);
+	m[0][2] = sin(tetta) * cos(psi) * sin(gamma) - sin(psi) * cos(tetta);
 
 	m[1][0] = -cos(psi) * sin(tetta) + sin(gamma) * cos(tetta) * sin(psi);
 	m[1][1] = cos(tetta) * cos(gamma);

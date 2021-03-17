@@ -1,3 +1,4 @@
+#pragma once
 /* математические макросы */
 #define _SQR(w) ((w)*(w)) // квадрат числа
 
@@ -47,6 +48,7 @@
 #define PSI angle[6]
 #define L42 angle[7]
 #define B42 angle[8]
+#define PSI0 angle[9]
 
 #define pr1Pitch Eiler[0]
 #define pr1Yaw Eiler[1]
@@ -54,4 +56,23 @@
 #define DeltaPitch Eiler[3]
 #define DeltaYaw Eiler[4]
 #define DeltaRoll Eiler[5]
-
+/*
+#define A11 cos(PITCH)*cos(YAW);
+#define A12 sin(PITCH);
+#define A13 -cos(PITCH) * sin(YAW);
+#define A21 -sin(PITCH)*cos(YAW) *cos(ROLL) + sin(YAW) *sin(ROLL);
+#define A22 cos(PITCH) * cos(ROLL);
+#define A23 cos(YAW) * sin(ROLL) + sin(PITCH) * sin(YAW) * cos(ROLL);
+#define A31 sin(PITCH) * cos(YAW) * sin(ROLL) + sin(YAW) * cos(ROLL) ;
+#define A32 -cos(PITCH) * sin(ROLL);
+#define A33 cos(YAW) * cos(ROLL) - sin(YAW) * sin(PITCH) * sin(ROLL);
+#define pr1A11 omegaZ*A21 - omegaY*A31;
+#define pr1A12 omegaZ*A22 - omegaY*A32;
+#define pr1A13 omegaZ*A23 - omegaY*A33;
+#define pr1A21 -omegaZ*A11 + omegaX*A31;
+#define pr1A22 -omegaZ*A12 + omegaX*A32;
+#define pr1A23 -omegaZ*A13 + omegaX*A33;
+#define pr1A31 omegaY*A11 - omegaX*A21;
+#define pr1A32 omegaY*A12 - omegaX*A22;
+#define pr1A33 omegaY*A13 - omegaX*A23;
+*/

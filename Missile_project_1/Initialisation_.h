@@ -1,5 +1,6 @@
 #pragma once
 #include "structs.h"
+//#include "EarthModel(ПЗ90).h"
 #include "EarthModel.h"
 #include "stdafx.h"
 #include "dig.h"
@@ -71,7 +72,16 @@ void Initialisation(Initial_Conditions& Rocket1, Object& Rocket, ModelParams_Str
 		if (strstr(cc, "EARTH_RATE_1") != NULL) Earth.Rate = StrFileToDouble(cc, fError);
 
 		/*Исходные данные модели Земли("ПЗ90)*/
-
+		/*if (strstr(cc, "A_GD_2") != NULL) Earth.A_gd = StrFileToDouble(cc, fError);
+		if (strstr(cc, "B_GD_2") != NULL) Earth.B_gd = StrFileToDouble(cc, fError);
+		if (strstr(cc, "E_GD_2") != NULL)  Earth.E_gd = StrFileToDouble(cc, fError);
+		if (strstr(cc, "G_EQUATOR_2") != NULL)  Earth.G_eq = StrFileToDouble(cc, fError);
+		if (strstr(cc, "EARTH_RATE_2") != NULL) Earth.Rate = StrFileToDouble(cc, fError);
+		if (strstr(cc, "fM") != NULL) Earth.fM = StrFileToDouble(cc, fError);
+		if (strstr(cc, "R_sr") != NULL) Earth.R_sr = StrFileToDouble(cc, fError);
+		if (strstr(cc, "alfa") != NULL) Earth.alpha = StrFileToDouble(cc, fError);
+		if (strstr(cc, "gamma_a") != NULL) Earth.gamma_a = StrFileToDouble(cc, fError);
+		if (strstr(cc, "gamma_b") != NULL) Earth.gamma_b = StrFileToDouble(cc, fError);*/
 
 	}
 }

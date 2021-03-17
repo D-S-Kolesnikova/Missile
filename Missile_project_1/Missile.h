@@ -18,6 +18,7 @@ public:
 	double Cz(double M, double alfa_);
 	double Cz_delta(double M, double alfa_);
 	double Mx_wx(double M, double alfa_);
+	double Mx_delta(double q, double sm, double length);
 	double Mz_wz(double M, double alfa_);
 	double Mz_alfa(double M, double alfa_);
 	double Mz_delta(double M, double alfa_);

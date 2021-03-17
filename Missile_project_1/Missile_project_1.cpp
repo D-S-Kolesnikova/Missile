@@ -30,7 +30,7 @@ void main(void)
 {
 	el = new double[16];
 	Left = new double[16];
-	angle = new double[9];
+	angle = new double[10];
 	Eiler = new double[6];
 	Time = new double[1];
 
@@ -69,6 +69,7 @@ void main(void)
 	nu_rg = cos(InData.Yaw0 / 2) * sin(InData.Pitch0 / 2) * cos(InData.Roll0 / 2) - sin(InData.Yaw0 / 2) * cos(InData.Pitch0 / 2) * sin(InData.Roll0 / 2);
 
 	SetAngle();
+	PSI0 = PSI;
 
 	DeltaPitch = 0;
 	DeltaRoll = 0;
@@ -78,23 +79,17 @@ void main(void)
 	Step = ParamStr.Step;
 	PrintStep = ParamStr.PrintStep;
 
-		for (TIME; Point_Y > 0; TIME += Step)
+		for (TIME; Point_Y > 1E-5; TIME += Step)
 		{
+			 
 			if (abs(TIME - j) < 1E-8)
 			{
 					j += PrintStep;
 					Print_();
 			};
 			Rks4(17, Rocket,InData, ParamStr, Earth);
-			if (Point_Y < 0)
-			{
-				break;
-			}
-			if (abs(Point_Y) < 1E-5)
-			{
-				Print_();		
-			}
 		}	
+		Print_();
 }
 
 

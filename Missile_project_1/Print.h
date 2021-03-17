@@ -63,6 +63,11 @@ void Print_()
 			<< setw(20) << DeltaPitch * TO_DEG << " "
 			<< setw(20) << DeltaYaw * TO_DEG << " "
 			<< setw(20) << DeltaRoll * TO_DEG << " "
+			<< setw(20) << pr1omegaX << " "
+			<< setw(20) << pr1omegaY << " "
+			<< setw(20) << pr1omegaZ << " "
+			<< setw(20) << pr1L << " "
+			<< setw(20) << pr1Speed_Z << " "
 			<< endl;
 		
 		file.close();
@@ -95,6 +100,11 @@ void Print_()
 						<< setw(20) << DeltaPitch * TO_DEG << " "
 						<< setw(20) << DeltaYaw * TO_DEG << " "
 						<< setw(20) << DeltaRoll * TO_DEG << " "
+						<< setw(20) << pr1omegaX << " "
+						<< setw(20) << pr1omegaY << " "
+						<< setw(20) << pr1omegaZ << " "
+						<< setw(20) << pr1L << " "
+						<< setw(20) << pr1Speed_Z << " "
 						<< endl;
 		}
 		

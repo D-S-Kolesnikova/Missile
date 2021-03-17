@@ -45,7 +45,7 @@ public:
 	void GetMatrix(double r, double l, double mm, double n);
 	void GetMatrix(double nu, double mu);
 	void TestGetMatrix(double a1, double a2, double a3, double a4, double a5, double a6, double a7, double a8, double a9);
-	void GSSK_STSK(double B0, double L0, double PSI0, double B, double L);
+	void GSSK_STSK(double B0, double L0, double Psi0, double B, double L);
 	void GSSK_SVSK(double psi, double tetta, double gamma);
 	void InitNull();
 	friend Matrix& operator ~ (Matrix& pos);

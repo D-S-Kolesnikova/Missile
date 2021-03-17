@@ -84,7 +84,11 @@ double Missile::Mx_wx(double M, double alfa_)
 	return -0.005 * 0.6786;
 };
 
-
+double Missile::Mx_delta(double q, double sm, double length)
+{
+	double p = 1000;
+	return (-p / (sm * q * length));
+}
 
 double Missile::Mz_wz(double M, double alfa_)
 {
