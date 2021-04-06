@@ -41,12 +41,13 @@ protected:
 public:
 	double DET_Matrix();
 	void Inverse_Matrix();
-	void GetMatrix(double tetta, double psi, double gamma);
 	void GetMatrix(double r, double l, double mm, double n);
 	void GetMatrix(double nu, double mu);
+	void GetMatrix(double tetta, double psi, double gamma);
 	void TestGetMatrix(double a1, double a2, double a3, double a4, double a5, double a6, double a7, double a8, double a9);
 	void GSSK_STSK(double B0, double L0, double Psi0, double B, double L);
 	void GSSK_SVSK(double psi, double tetta, double gamma);
+	void Matrix_B(double fi_, double hi_, double r_);
 	void InitNull();
 	friend Matrix& operator ~ (Matrix& pos);
 	friend Matrix  operator + (Matrix pos1, Matrix pos2);

@@ -207,6 +207,21 @@ void Matrix::GSSK_SVSK(double psi, double tetta, double gamma)
 	m[2][2] = cos(psi) * cos(gamma);
 }
 
+void Matrix::Matrix_B(double fi_, double hi_, double r_)
+{
+	m[0][0] = cos(fi_) * cos(hi_);
+	m[0][1] = sin(fi_);
+	m[0][2] = - cos(fi_) * sin(hi_);
+
+	m[1][0] = -cos(hi_) * sin(fi_);
+	m[1][1] = cos(fi_);
+	m[1][2] = sin(fi_) * sin(hi_);
+
+	m[2][0] = sin(hi_);
+	m[2][1] = 0;
+	m[2][2] = cos(hi_);
+}
+
 void Matrix::InitNull()
 {
 	for (int i = 0; i < 3; i++)

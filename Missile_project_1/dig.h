@@ -5,7 +5,7 @@
 #include <math.h>
 #include <cstring>
 
-double StrFileToDouble(char str[256], FILE*fg)
+static double StrFileToDouble(char str[256], FILE*fg)
 		{
 		fprintf(fg,"str!!!%s\n",str);
 		if ((str[0]=='/')||(str[0]=='<')||(str[0]=='>')) return 0.0;
@@ -96,7 +96,7 @@ double StrFileToDouble(char str[256], FILE*fg)
 		}
 
 
-double StrFileToDoubleWF(char str[256])
+static double StrFileToDoubleWF(char str[256])
 		{
 		if ((str[0]=='/')||(str[0]=='<')||(str[0]=='>')) return 0.0;
 		//Исследуем в переданной строке все символы после знака "="
@@ -185,7 +185,7 @@ double StrFileToDoubleWF(char str[256])
 
 /////////////////////////////////////////////
 //Эта функция позволяет избежать проблеммы если отсутствует знак "="
-double StrFileToDouble2(char str[256], FILE*fg)
+static double StrFileToDouble2(char str[256], FILE*fg)
 {
   char strr[257];
   _strnset(strr,'\0',257);
@@ -194,7 +194,7 @@ double StrFileToDouble2(char str[256], FILE*fg)
   return StrFileToDouble(strr, fg);
 }
 
-double StrFileToDouble2WF(char str[256])
+static double StrFileToDouble2WF(char str[256])
 {
   char strr[257];
   _strnset(strr,'\0',257);

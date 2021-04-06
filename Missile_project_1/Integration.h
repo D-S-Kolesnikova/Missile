@@ -1,3 +1,5 @@
+#include <iostream>
+using namespace std;
 
 #include "macros.h"
 #include "math_lib.h"
@@ -6,6 +8,9 @@
 #include "Missile.h"
 #include "structs.h"
 #include "Initialisation_.h"
+#include "AHK.h"
+
+
 
 
 double* el;
@@ -13,6 +18,11 @@ double* Left;
 double* Time;
 double* angle;
 double* Eiler;
+double* target;
+double* G;
+double* delta;
+
+double DeltaPitch_k, DeltaYaw_k, DeltaRoll_k;
 
 void SetAngle()
 {
@@ -50,18 +60,28 @@ void SetAngle()
 
 };
 
-void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
+
+
+void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth, AeroDH& ADH_KIT)
 {
-
-
+	
+	ADH_IN_PUT InPutADH;
+	DESIGNER ADH;
 	FILE* fError;
 	Missile Missile1;
 	ParamAtmosferaStruct Atm1;
+	Aerodynamics_Struct AD;
 
 //Инициализация числовых костанст для гравитационной модели
-	EarthModelIni(Earth.A_gd, Earth.E_gd, Earth.G_eq, Earth.Rate);
+	EarthModelIni(Earth.A_gd, Earth.E_gd, Earth.G_eq, Earth.Rate); //Для модели Красовского
+	//EarthModelIni(Earth.A_gd, Earth.B_gd, Earth.E_gd, Earth.G_eq, Earth.Rate, Earth.R_sr, Earth.fM, Earth.alpha, Earth.gamma_a, Earth.gamma_b); //Для модели ОЗЭ
 //Расчет параметров гравитационной модели
-	Earth_Struct OutStruct = GetEarthParameters(H_, B_);
+	Earth_Struct OutStruct = GetEarthParameters(H_, B_); //Для модели Красовского
+	//Earth_Struct OutStruct = GetEarthParameters(Point_Y, B_, L_);  //Для модели ОЗЭ
+	//Earth_Struct OutStruct;//сфер модель
+	//double R_earth = 6370291.091;//сфер модель
+	//OutStruct.R_lambda = R_earth;//сфер модель
+	//OutStruct.R_phi = R_earth;//сфер модель
 /*------------------Расчет матриц направляющих косинусов-----------------------*/
 // Матрица перехода от географической СК к стартовой СК
 	Matrix GS_ST;
@@ -112,9 +132,52 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	pr1Pitch = omegaY * sin(ROLL) + omegaZ * cos(ROLL);
 	pr1Yaw = (omegaY * cos(ROLL) - omegaZ * sin(ROLL)) / cos(PITCH);
 	pr1Roll = omegaX - tan(PITCH) * (omegaY * cos(ROLL) - omegaZ * sin(ROLL));
+	
+//ПОПЫТКА ВВОДА НОВОЙ АЭРОДИНАМИКИ !!!ОСТОРОЖНО!!!
+
+	InPutADH.M__ = mahh;
+	InPutADH.Alfa__ = ALFA;
+	InPutADH.Betta__ = BETTA;
+	InPutADH.H__ = Point_Y;
+
+	InPutADH.Delta1__ = -delta_1;
+	InPutADH.Delta2__ = -delta_2;
+	InPutADH.Delta3__ = delta_3;
+	InPutADH.Delta4__ = delta_4;
+
+	InPutADH.n__ = 0;
+	InPutADH.x_ct__ = Rocket.x_cm;
+	InPutADH.V__ = velocity;
+
+	InPutADH.S_har__ = SquareMiddle;
+	InPutADH.l1_ar__ = Rocket.l1_ar;
+	InPutADH.l2_ar__ = Rocket.l2_ar;
+	InPutADH.l_har__ = Rocket.l_har;
+	InPutADH.L_har__ = Rocket.L_har;
+
+	InPutADH.wx__ = omegaX;
+	InPutADH.wy__ = omegaY;
+	InPutADH.wz__ = omegaZ;
+	InPutADH.q__ = q;
+	InPutADH.Px__ = 0;
+	
+	InPutADH.B_T = 1;
+
+	ADH = ADH_KIT.KitADH(InPutADH);
+
+	AD.R.X = -(ADH.Fxk_ + ADH.Fx_con_);
+	AD.R.Y = (ADH.Fyk_ + ADH.Fy_con_);
+	AD.R.Z = (ADH.Fzk_ + ADH.Fz_con_);
+
+	AD.M.X = (ADH.Mxk_ + ADH.Mx_con_ + ADH.Mx_wx_);
+	AD.M.Y = (ADH.Myk_ + ADH.My_con_ + ADH.My_wy_);
+	AD.M.Z = (ADH.Mzk_ + ADH.Mz_con_ + ADH.Mz_wz_);
+
+//ПОПЫТКА ВВОДА НОВОЙ АЭРОДИНАМИКИ !!!ОСТОРОЖНО!!!
+
 /*-------Расчет частных производных внешних сил и моментов, действующих на ЛА (кроме силы тяжести), в проекциях на СвСК----*/
 	double Y_alfa = Missile1.Cy(mahh, ALFA)  * q * SquareMiddle;
-	double Y_delta =Missile1.Cy_delta(mahh, ALFA)* q* SquareMiddle;
+	double Y_delta = Missile1.Cy_delta(mahh, ALFA)* q* SquareMiddle;
 	double Z_betta = Missile1.Cz(mahh, BETTA)  * q * SquareMiddle;
 	double Z_delta = Missile1.Cz_delta(mahh, BETTA) * q * SquareMiddle;
 	double Mx_omgX = (Missile1.Mx_wx(mahh, AlfaSpace) * Rocket.LenghtLA / velocity) * q * SquareMiddle * Rocket.LenghtLA;
@@ -127,15 +190,34 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	double Mz_delta = Missile1.Mz_delta(mahh, ALFA) * q * SquareMiddle * Rocket.LenghtLA;
 /*-------Расчет внешних сил и моментов, действующих на ЛА (кроме силы тяжести), в проекциях на СвСК----*/
 	Vector F, M, Gg;
-	
-	F.X = -Missile1.Cx(mahh, AlfaSpace) * q * SquareMiddle;
-	F.Y = Y_alfa * ALFA + Y_delta * DeltaPitch;
-	F.Z = Z_betta * BETTA + Z_delta * DeltaYaw;
+/*---------ПОПЫТКА ВВОДА НОВОЙ АЭРОДИНАМИКИ !!!ОСТОРОЖНО!!!-----------*/
+	F.X = AD.R.X;
+	F.Y = AD.R.Y;
+	F.Z = AD.R.Z;
+	M.X = AD.M.X;
+	M.Y = AD.M.Y;
+	M.Z = AD.M.Z;
+/*---------ПОПЫТКА ВВОДА НОВОЙ АЭРОДИНАМИКИ !!!ОСТОРОЖНО!!!-----------*/
 
-	M.X = Mx_omgX * omegaX + Mx_delta * DeltaRoll;
-	M.Y = My_omgY * omegaY+ My_betta * BETTA + My_delta * DeltaYaw;
-	M.Z = Mz_omgZ * omegaZ + Mz_alfa * ALFA + Mz_delta * DeltaPitch;
-	
+	//F.X = -Missile1.Cx(mahh, AlfaSpace) * q * SquareMiddle;
+	//F.Y = Y_alfa * ALFA + Y_delta * DeltaPitch;
+	//F.Z = Z_betta * BETTA + Z_delta * DeltaYaw;
+
+	//M.X = Mx_omgX * omegaX + Mx_delta * DeltaRoll;
+	//M.Y = My_omgY * omegaY + My_betta * BETTA + My_delta * DeltaYaw;
+	//M.Z = Mz_omgZ * omegaZ + Mz_alfa * ALFA + Mz_delta * DeltaPitch;	
+/*----------НАВЕДЕНИЕ-------------*/
+//Определение проекций относительного расстояния между ракетой и целью на оси СФ СК
+
+	target_r = sqrt(_SQR(target_X - Point_X) + _SQR(target_Y - Point_Y) + _SQR(target_Z - Point_Z));
+	target_fi = asin((target_Y - Point_Y) / target_r);
+	target_hi = -atan2(target_Z - Point_Z, target_X - Point_X);
+	Vector delta_V(Speed_X, Speed_Y, Speed_Z);
+	Matrix Matr_B;
+	Matr_B.Matrix_B(target_fi, target_hi, target_r);
+	Vector V_upr = Matr_B * delta_V;//(Vr , V_fi, V_hi)
+	target_pr1fi = -V_upr.Y / target_r;
+	target_pr1hi = V_upr.Z / (target_r * cos(target_fi));
 //Расчет динамических коэффициентов	
 	double a11 = - Mz_omgZ / Rocket.Iz0;
 	double a12 = - Mz_alfa / Rocket.Iz0;
@@ -166,19 +248,67 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	double Ecc_p = 0.35;
 	double Ecc_y = 0.35;
 	double Ecc_r = 0.35;
+	double Krp_p = 0.7;
+	double Krp_y = 0.7;
+	double Kdg_p = 0.7;
+	double Kdg_y = 0.7;
+	double Ky_p = 70; //Варьируем
+	double Ky_y = 70; //Варьируем
+	double K1_p = Kcc_p * (1 + Ky_p * Krp_p * Kdg_p * K_p) / (K_p * T1_p * T1_p);
 	double K2_p = -2 * T_p * (E_p * T1_p - Ecc_p * Ecc_p * T_p - sqrt(pow(Ecc_p, 4) * _SQR(T_p) - 2 * E_p * _SQR(Ecc_p) * T1_p * T_p + _SQR(T1_p * Ecc_p)))/(K_p * T1_p * T1_p);
+	double K1_y = Kcc_y * (1 + Ky_y * Krp_y * Kdg_y * K_p) / (K_p * T1_p * T1_p);;
 	double K2_y = -2 * T_y *(E_p * T1_y - Ecc_y * Ecc_y * T_y - sqrt(pow(Ecc_y, 4) * _SQR(T_y) - 2 * E_y * _SQR(Ecc_y) * T1_y * T_y + _SQR(T1_y * Ecc_y))) / (K_y * T1_y * T1_y);
 	double K1_r = (2 * Ecc_r * T_r - Tcc_r) / (K_r * Tcc_r);
 	double K2_r = T_r /( K_r * Tcc_r * Tcc_r);
-//Расчет углов наклона рулей 
-	DeltaPitch = -K2_p * pr1Pitch;
-	DeltaYaw = -K2_y * pr1Yaw;
-	DeltaRoll = -K2_r * ROLL - K1_r * pr1Roll;
+//Расчет эквивалентных углов наклона рулей 
+	//DeltaPitch = -K2_p * pr1Pitch+K1_p * target_pr1fi;
+	//DeltaYaw = -K2_y * pr1Yaw+K1_y * target_pr1hi;
+	//DeltaRoll = -K2_r * ROLL - K1_r * pr1Roll;
+	DeltaPitch = 0;
+	DeltaYaw = 0;
+	DeltaRoll = 0;
+//Ограничения зоной ослепления
+	if (target_r < 500)
+	{
+		DeltaPitch = DeltaPitch_k;
+		DeltaYaw = DeltaYaw_k;
+		DeltaRoll = DeltaRoll_k;
+	}
+
+	if ( abs(target_r - 500) < 0.1)
+	{
+		 DeltaPitch_k = DeltaPitch;
+		 DeltaYaw_k = DeltaYaw;
+		 DeltaRoll_k = DeltaRoll;
+	}
+//Ограничения на углы отклонения рулей (15 гр)
+	if (DeltaPitch > 15 * TO_RAD)
+		DeltaPitch = 15 * TO_RAD;
+	if (DeltaPitch < -15 * TO_RAD)
+		DeltaPitch = -15 * TO_RAD;
+	if (DeltaYaw > 15 * TO_RAD)
+		DeltaYaw = 15 * TO_RAD;
+	if (DeltaYaw < -15 * TO_RAD)
+		DeltaYaw = 15 * TO_RAD;
+	if (DeltaRoll > 15 * TO_RAD)
+		DeltaRoll = 15 * TO_RAD;
+	if (DeltaRoll < -15 * TO_RAD)
+		DeltaRoll = -15 * TO_RAD;
 //Проекция ускорения силы тяжести на оси географической СК
 	Vector G_GS;
 	G_GS = OutStruct.GField;
 //Проекция ускорения силы тяжести на оси стартовой СК
-	Vector G_ST = GS_ST * G_GS;
+	Vector G_ST = GS_ST * G_GS; //Для модели Красовского
+	//Vector G_ST = G_GS; //Для модели ОЗЭ
+	//double Rr = sqrt(_SQR(Point_X) + _SQR(Point_Y+ R_earth) + _SQR(Point_Z));//сфер модель
+	//double betta = 0.00528001;//сфер модель
+	//double g0 = 9.78034 *(1 + _SQR(sin(betta)))* _SQR(R_earth / Rr);
+	//double gamma = atan2(Point_X , (Point_Y + R_earth));//сфер модель
+	//Vector G_ST(g0 * sin(gamma), -g0 * cos(gamma), 0);//сфер модель
+
+	Gx = G_ST.X;
+	Gy = G_ST.Y;
+	Gz = G_ST.Z;
 //Проекция силы тяжести на оси стартовой СК
 	Gg = Rocket.mass * G_ST;
 //Кажущееся ускорение в проекциях на оси связанной СК	
@@ -189,7 +319,6 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	Vector Accl_Kor = 2.0 * (RateEarth_ST % V_ST);
 //Абсолютное ускорение в проекциях на оси стартовой СК
 	Vector F_ST = fg * pow(Rocket.mass, -1.) - Accl_Kor;
-	//Vector F_ST = fg * pow(Rocket.mass, -1.);
 //Тензор инерции на оси связанной СК
 	Matrix J_SV;
 	J_SV.TestGetMatrix(Rocket.Ix0, 0, 0, 0, Rocket.Iy0, 0, 0, 0, Rocket.Iz0);
@@ -203,28 +332,6 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	Vector pr1_RateAbs_SV;
 
 	pr1_RateAbs_SV = J_SV_inverse * (M - (pr1_J_SV * RateAbs_SV + RateAbs_SV % (J_SV * RateAbs_SV)));
-	
-//Уравнение Пуассона
-	Matrix RateSV_I;
-	RateSV_I.TestGetMatrix(0.0, RateAbs_SV.Z, RateAbs_SV.Y,
-		RateAbs_SV.Z, 0.0, -RateAbs_SV.X,
-		-RateAbs_SV.Y, RateAbs_SV.X, 0.0);
-	Matrix RateGS_I;
-	RateGS_I.TestGetMatrix(0.0, -RateEarth_GS.Z - RateGS_GS.Z, RateEarth_GS.Y + RateGS_GS.Y,
-		RateEarth_GS.Z + RateGS_GS.Z, 0.0, -RateEarth_GS.X - RateGS_GS.X,
-		-RateEarth_GS.Y - RateGS_GS.Y, RateEarth_GS.X + RateGS_GS.X, 0.0);
-	Matrix Res1 = SV_GS * RateGS_I;
-	Matrix Res2 = RateGS_I * SV_GS;
-	Matrix pr1Matrix_SV_GS = Res1 - Res2;
-
-//Уравнение Пуассона для СтСК
-	Matrix RateST_I;
-	RateST_I.TestGetMatrix(0.0, -RateEarth_ST.Z, RateEarth_ST.Y,
-		RateEarth_ST.Z, 0.0, -RateEarth_ST.X,
-		-RateEarth_ST.Y, RateEarth_ST.X, 0.0);
-	 Res1 = SV_ST * RateGS_I;
-	 Res2 = RateST_I * SV_ST;
-	Matrix pr1Matrix_SV_ST = Res1 - Res2;
 
 	pr1Speed_X = F_ST.X;
 	pr1Speed_Y = F_ST.Y;
@@ -245,7 +352,7 @@ void RightPart(Object Rocket, Initial_Conditions InData, Earth_Struct Earth)
 	
 };
 
-void Rks4(int Size, Object Rocket, Initial_Conditions InData, ModelParams_Struct Strct, Earth_Struct Earth)
+void Rks4(int Size, Object Rocket, Initial_Conditions InData, ModelParams_Struct Strct, Earth_Struct Earth, AeroDH& ADH_KIT)
 {
 
 	double a[5];
@@ -261,7 +368,7 @@ void Rks4(int Size, Object Rocket, Initial_Conditions InData, ModelParams_Struct
 		elTemp[i] = elh[i] = el[i];
 	for (int i = 0; i < 4; i++)
 	{
-		RightPart(Rocket, InData, Earth);
+		RightPart(Rocket, InData, Earth, ADH_KIT);
 
 		for (int i = 0; i < Size; i++)
 			el[i] = elTemp[i];
@@ -287,7 +394,7 @@ void Rks4(int Size, Object Rocket, Initial_Conditions InData, ModelParams_Struct
 				elh[i] = el[i];
 			for (int i = 0; i < 4; i++)
 			{
-				RightPart(Rocket, InData, Earth);
+				RightPart(Rocket, InData, Earth, ADH_KIT);
 
 				for (int j = 0; j < Size; j++)
 				{

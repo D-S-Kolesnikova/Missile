@@ -19,6 +19,19 @@
 #define pr1L		Left[14]
 #define pr1H		Left[15]
 
+#define target_r target[0]
+#define target_fi target[1]
+#define target_hi target[2]
+#define target_pr1r target[3]
+#define target_pr1fi target[4]
+#define target_pr1hi target[5]
+#define target_X target[6]
+#define target_Y target[7]
+#define target_Z target[8]
+#define MISS target[9]
+
+
+
 #define	Speed_X el[0]
 #define	Speed_Y el[1]
 #define	Speed_Z el[2]
@@ -56,6 +69,16 @@
 #define DeltaPitch Eiler[3]
 #define DeltaYaw Eiler[4]
 #define DeltaRoll Eiler[5]
+
+#define Gx G[0]
+#define Gy G[1]
+#define Gz G[2]
+
+#define delta_1 delta[0]
+#define delta_2 delta[1]
+#define delta_3 delta[2]
+#define delta_4 delta[3]
+
 /*
 #define A11 cos(PITCH)*cos(YAW);
 #define A12 sin(PITCH);

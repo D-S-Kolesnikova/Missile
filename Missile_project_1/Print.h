@@ -35,9 +35,13 @@ void Print_()
 			<< setw(20) << "B,degree" << " "
 			<< setw(20) << "L,degree" << " "
 			<< setw(20) << "H,m" << " "
-			<< setw(20) << "deltaPitch,gr" << " "
-			<< setw(20) << "deltaYaw,gr" << " "
-			<< setw(20) << "deltaRoll,gr" << " "
+			<< setw(20) << "deltaPitch" << " "
+			<< setw(20) << "deltaYaw" << " "
+			<< setw(20) << "deltaRoll" << " "
+			<< setw(20) << "Gx" << " "
+			<< setw(20) << "Gy" << " "
+			<< setw(20) << "Gz" << " "
+
 			<< endl;
 		
 		file << setw(20) << TIME << " "
@@ -63,11 +67,10 @@ void Print_()
 			<< setw(20) << DeltaPitch * TO_DEG << " "
 			<< setw(20) << DeltaYaw * TO_DEG << " "
 			<< setw(20) << DeltaRoll * TO_DEG << " "
-			<< setw(20) << pr1omegaX << " "
-			<< setw(20) << pr1omegaY << " "
-			<< setw(20) << pr1omegaZ << " "
-			<< setw(20) << pr1L << " "
-			<< setw(20) << pr1Speed_Z << " "
+			<< setw(20) << Gx << " "
+			<< setw(20) << Gy << " "
+			<< setw(20) << Gz << " "
+
 			<< endl;
 		
 		file.close();
@@ -100,16 +103,30 @@ void Print_()
 						<< setw(20) << DeltaPitch * TO_DEG << " "
 						<< setw(20) << DeltaYaw * TO_DEG << " "
 						<< setw(20) << DeltaRoll * TO_DEG << " "
-						<< setw(20) << pr1omegaX << " "
-						<< setw(20) << pr1omegaY << " "
-						<< setw(20) << pr1omegaZ << " "
-						<< setw(20) << pr1L << " "
-						<< setw(20) << pr1Speed_Z << " "
+						<< setw(20) << Gx << " "
+						<< setw(20) << Gy << " "
+						<< setw(20) << Gz << " "
 						<< endl;
 		}
 		
 		file.close();
 	}
 	
+}
+
+void Print_zone()
+{
+	ofstream file("print_zone.txt", ios::app);
+	if (file.is_open())
+	{
+		file 
+			<< setw(20) << target_X << " "
+			<< setw(20) << target_Z << " "
+			<< setw(20) << Point_X << " "
+			<< setw(20) << Point_Z << " "
+			<< endl;
+	}
+
+	file.close();
 }
 

@@ -1,0 +1,23 @@
+	Matrix GS_ST;
+	B_ = -M_PI; L_ = 0; H_ =  0;
+	cout << " H " << "   " << " L " << "   " << " B " << "   " << " Gx " << "   " << " Gy " << "   " << " Gz " << endl;
+	for (H_; H_ < 10001; H_ += 1000)
+	{
+		
+	
+	GS_ST.GSSK_STSK(B_, L_, PSI0, B_, L_);
+		
+			B_ = -M_PI;
+			for (B_; B_ <= M_PI + 1E-6; B_ += 40 * TO_RAD)
+			{
+				Earth_Struct OutStruct = GetEarthParameters(H_, B_);  //Для модели ОЗЭ
+				Vector G_GS = OutStruct.GField;
+				Vector G_ST = GS_ST * G_GS;
+				Gx = G_ST.X;
+				Gy = G_ST.Y;
+				Gz = G_ST.Z;
+				cout << H_ << "   " << L_ * TO_DEG << "   " << B_ * TO_DEG << "   " << Gx << "   " << Gy << "   " << Gz << endl;
+			};
+			double k = 0;
+		
+	}

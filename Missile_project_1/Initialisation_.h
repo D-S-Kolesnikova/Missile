@@ -41,6 +41,10 @@ void Initialisation(Initial_Conditions& Rocket1, Object& Rocket, ModelParams_Str
 		if (strstr(cc, "X_1") != NULL)Rocket1.X_1 = StrFileToDouble(cc, fError);//el
 		if (strstr(cc, "Y_1") != NULL)Rocket1.Y_1 = StrFileToDouble(cc, fError);//el
 		if (strstr(cc, "H_1") != NULL)Rocket1.H_1 = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "X_target") != NULL)Rocket1.X_target = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Y_target") != NULL)Rocket1.Y_target = StrFileToDouble(cc, fError);//el
+		if (strstr(cc, "Z_target") != NULL)Rocket1.Z_target = StrFileToDouble(cc, fError);//el
+
 
 		/*<Начальные угловое положение и угловые скорости относительно связанных осей координат>*/
 		if (strstr(cc, "Alfa0") != NULL) Rocket1.Alfa0 = StrFileToDouble(cc, fError) / ToDegree();
@@ -60,12 +64,17 @@ void Initialisation(Initial_Conditions& Rocket1, Object& Rocket, ModelParams_Str
 		if (strstr(cc, "Iz0") != NULL) Rocket.Iz0 = StrFileToDouble(cc, fError);
 		if (strstr(cc, "LengthLA") != NULL) Rocket.LenghtLA = StrFileToDouble(cc, fError);
 		if (strstr(cc, "Dm") != NULL) Rocket.Dmiddle = StrFileToDouble(cc, fError);
+		if (strstr(cc, "l1_ar") != NULL) Rocket.l1_ar = StrFileToDouble(cc, fError);
+		if (strstr(cc, "l2_ar") != NULL) Rocket.l2_ar = StrFileToDouble(cc, fError);
+		if (strstr(cc, "l_har") != NULL) Rocket.l_har = StrFileToDouble(cc, fError);
+		if (strstr(cc, "L_har") != NULL) Rocket.L_har = StrFileToDouble(cc, fError);
+		if (strstr(cc, "x_cm") != NULL) Rocket.x_cm = StrFileToDouble(cc, fError);
 
 		/*Параметры моделирования*/
 		if (strstr(cc, "Step") != NULL) ParamStr.Step = StrFileToDouble(cc, fError);
 		if (strstr(cc, "PrintData") != NULL) ParamStr.PrintStep = StrFileToDouble(cc, fError);
 
-		/*Исходные данные модели Земли("Эллипсоид Красовского)*/
+		//Исходные данные модели Земли("Эллипсоид Красовского)
 		if (strstr(cc, "A_GD_1") != NULL) Earth.A_gd = StrFileToDouble(cc, fError);
 		if (strstr(cc, "E_GD_1") != NULL)  Earth.E_gd = StrFileToDouble(cc, fError);
 		if (strstr(cc, "G_EQUATOR_1") != NULL)  Earth.G_eq = StrFileToDouble(cc, fError);

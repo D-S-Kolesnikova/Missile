@@ -4,6 +4,9 @@ typedef struct Initial_Conditions
 	double X0;
 	double Y0;
 	double Z0;
+	double X_target;
+	double Y_target;
+	double Z_target;
 	double X_1;
 	double Y_1;
 	double H_1;
@@ -27,6 +30,11 @@ typedef struct Object
 	double Iz0;
 	double Dmiddle;
 	double LenghtLA;
+	double x_cm;
+	double l1_ar;
+	double l2_ar;
+	double l_har;
+	double L_har;
 	
 } Object;
 

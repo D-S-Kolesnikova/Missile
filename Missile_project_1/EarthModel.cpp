@@ -72,6 +72,9 @@ Earth_Struct	GetEarthParameters(double H, double B)
 	AcclCp_GS.Z = 0.;
 
 	F2_GS = F1_GS - AcclCp_GS;
+	if (F2_GS.Y > 0) {
+		F2_GS.Y = -F2_GS.Y;
+	}
 
 	OutStruct.A_gd = A_GD;
 	OutStruct.G_eq = G_EQUATOR;

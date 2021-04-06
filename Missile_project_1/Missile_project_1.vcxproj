@@ -121,7 +121,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -151,19 +151,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AHK.cpp" />
+    <ClCompile Include="dig.cpp" />
     <ClCompile Include="EarthModel(ПЗ90).cpp" />
     <ClCompile Include="EarthModel.cpp" />
     <ClCompile Include="math_lib.cpp" />
     <ClCompile Include="Missile.cpp" />
     <ClCompile Include="Missile_project_1.cpp" />
     <ClCompile Include="Matrix+Vector.cpp" />
+    <ClCompile Include="Project1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Aerodynamics.h" />
+    <ClInclude Include="AHK.h" />
     <ClInclude Include="Atmosfera.h" />
     <ClInclude Include="dig.h" />
     <ClInclude Include="EarthModel(ПЗ90).h" />
     <ClInclude Include="EarthModel.h" />
+    <ClInclude Include="Header.h" />
     <ClInclude Include="Initialisation_.h" />
     <ClInclude Include="Integration.h" />
     <ClInclude Include="macros.h" />
@@ -171,6 +176,7 @@
     <ClInclude Include="Matrix+Vector.h" />
     <ClInclude Include="Missile.h" />
     <ClInclude Include="Print.h" />
+    <ClInclude Include="Project1.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="targetver.h" />
